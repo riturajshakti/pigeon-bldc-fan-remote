@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_title">Pigeon Fan</string>
+    <string name="widget_description">Quick fan controls</string>
+    <string name="widget_power">Power</string>
+    <string name="widget_minus">Speed down</string>
+    <string name="widget_plus">Speed up</string>
+    <string name="widget_boost">Boost</string>
+    <string name="widget_light">Light</string>
+    <string name="widget_sleep">Sleep</string>
+</resources>

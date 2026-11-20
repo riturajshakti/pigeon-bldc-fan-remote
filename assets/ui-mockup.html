@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pigeon Fan Remote</title>
+<style>
+  :root {
+    --red-500: #E02424;
+    --red-600: #C81E1E;
+    --red-700: #9B1C1C;
+    --red-900: #5C0F0F;
+
+    --bg: #140708;
+    --surface: #241011;
+    --surface-hi: #42201F;
+    --outline: #5C2C2D;
+    --on-surface: #FDEDED;
+    --on-muted: #C9A3A4;
+    --accent: var(--red-500);
+    --on-accent: #FFFFFF;
+
+    --gap: clamp(8px, 1.6vh, 14px);
+    --radius: 20px;
+  }
+
+  :root[data-theme="light"] {
+    --bg: #FDF2F2;
+    --surface: #FFFFFF;
+    --surface-hi: #F7C9C9;
+    --outline: #E89A9A;
+    --on-surface: #3B0A0A;
+    --on-muted: #8B5F5F;
+    --accent: var(--red-600);
+    --on-accent: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--on-surface);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .phone {
+    height: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    padding: calc(var(--gap) * 1.2) var(--gap) var(--gap);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+  .title { flex: 1; min-width: 0; }
+  .title h1 {
+    margin: 0;
+    font-size: clamp(15px, 2.1vh, 18px);
+    font-weight: 650;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .icon-btn {
+    flex: 0 0 auto;
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    border: 1px solid var(--outline);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--on-surface);
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .icon-btn:active { transform: scale(.92); }
+  .icon-btn svg { width: 19px; height: 19px; fill: currentColor; }
+
+  /* ---------- dial ---------- */
+  .dial-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+  }
+  .dial {
+    position: relative;
+    aspect-ratio: 1;
+    height: 100%;
+    max-height: 100%;
+  }
+  .dial svg { width: 100%; height: 100%; display: block; }
+  .track { stroke: var(--surface-hi); }
+  .progress {
+    stroke: var(--accent);
+    transition: stroke-dasharray .35s cubic-bezier(.4,0,.2,1);
+  }
+  .dial[data-dragging] .progress { transition: none; }
+  .dial[data-dragging] .node { transition: background .12s, color .12s, border-color .12s; }
+  .dial[data-dragging] { cursor: grabbing; touch-action: none; }
+  .dial { touch-action: none; }
+
+  .node {
+    position: absolute;
+    width: 19%; aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1.5px solid var(--outline);
+    background: var(--surface-hi);
+    color: var(--on-surface);
+    font-size: clamp(19px, 3.1vh, 26px);
+    font-weight: 700;
+    display: grid; place-items: center;
+    cursor: pointer;
+    transition: background .2s, color .2s, border-color .2s, transform .12s;
+  }
+  .node:active { transform: translate(-50%, -50%) scale(.9); }
+  .node.on {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .node.power-node {
+    background: var(--surface-hi);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .node.power-node svg {
+    width: 52%; height: 52%;
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: .9;
+  }
+  .tile.power svg {
+    stroke: currentColor;
+    stroke-width: .9;
+  }
+  .tile.power span { font-weight: 750; }
+  .node.power-node.flash,
+  .tile.power.flash {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+  }
+
+  .boost {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 37%; aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: none;
+    background: var(--surface-hi);
+    color: var(--on-surface);
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: background .18s, transform .12s;
+  }
+  .boost:active { transform: translate(-50%, -50%) scale(.94); }
+  .boost.on { background: var(--accent); color: var(--on-accent); }
+  .boost svg { width: 30%; height: auto; fill: currentColor; }
+  .boost span {
+    font-size: clamp(12px, 1.8vh, 15px);
+    font-weight: 800;
+    letter-spacing: .09em;
+  }
+
+  .status {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(10px, 1.4vh, 12px);
+    min-height: 26px;
+  }
+  .status button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 8px;
+    transition: opacity .2s;
+  }
+  .status #msg {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    color: var(--on-muted);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+  }
+  .status.showing button { opacity: 0; pointer-events: none; }
+  .status.showing #msg { opacity: 1; }
+
+  /* ---------- grid ---------- */
+  .grid {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--gap);
+  }
+  .tile {
+    aspect-ratio: 1;
+    border: 1px solid var(--outline);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--on-surface);
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+    transition: background .15s, transform .1s, border-color .15s;
+  }
+  .tile:active { transform: scale(.94); }
+  .tile svg {
+    width: clamp(20px, 3.2vh, 27px);
+    height: clamp(20px, 3.2vh, 27px);
+    fill: currentColor;
+  }
+  .tile span {
+    font-size: clamp(9px, 1.3vh, 11px);
+    font-weight: 550;
+    text-align: center;
+    line-height: 1.15;
+  }
+  .tile.power {
+    background: var(--surface-hi);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .tile.active {
+    background: var(--surface-hi);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ---------- about ---------- */
+  dialog {
+    border: none;
+    border-radius: 24px;
+    background: var(--surface);
+    color: var(--on-surface);
+    padding: 24px;
+    max-width: 300px;
+    width: calc(100% - 48px);
+  }
+  dialog::backdrop { background: rgba(0,0,0,.6); }
+  dialog h2 { margin: 0 0 14px; font-size: 17px; }
+  .row { display: flex; gap: 10px; font-size: 13px; padding: 4px 0; }
+  .row b { flex: 0 0 88px; font-weight: 450; color: var(--on-muted); }
+  dialog button {
+    margin-top: 16px;
+    width: 100%;
+    padding: 11px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    color: var(--on-accent);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <header>
+    <div class="title">
+      <h1>Pigeon BLDC Fan</h1>
+    </div>
+    <button class="icon-btn" id="themeBtn" title="Theme">
+      <svg viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 0 0-12v12Zm0 4a10 10 0 1 1 0-20 10 10 0 0 1 0 20Z"/></svg>
+    </button>
+    <button class="icon-btn" id="infoBtn" title="About">
+      <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2V7Zm0 4h2v6h-2v-6Zm1-9a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"/></svg>
+    </button>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="dial-wrap">
+    <div class="dial" id="dial">
+      <svg viewBox="0 0 200 200">
+        <circle class="track" cx="100" cy="100" r="72" fill="none"
+                stroke-width="10" stroke-linecap="round"
+                stroke-dasharray="339.3 452.4" transform="rotate(135 100 100)"/>
+        <circle class="progress" id="prog" cx="100" cy="100" r="72" fill="none"
+                stroke-width="10" stroke-linecap="round"
+                stroke-dasharray="0 452.4" transform="rotate(135 100 100)"/>
+      </svg>
+      <button class="boost" id="boost">
+        <svg viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z"/></svg>
+        <span>BOOST</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="status" id="status">
+    <button id="resync">Resync</button>
+    <span id="msg"></span>
+  </div>
+
+</div>
+
+<dialog id="about">
+  <h2>Pigeon Fan Remote</h2>
+  <div class="row"><b>Author</b><span>Rituraj Shakti</span></div>
+  <div class="row"><b>Email</b><span>riturajshakti@gmail.com</span></div>
+  <div class="row"><b>Version</b><span>1.0.0</span></div>
+  <div class="row"><b>Version code</b><span>1</span></div>
+  <button onclick="about.close()">Close</button>
+</dialog>
+
+<script>
+const ICONS = {
+  light:   'M12 2v3m0 14v3M4.2 4.2l2.1 2.1m11.4 11.4 2.1 2.1M2 12h3m14 0h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1',
+  power:   'M13 3h-2v10h2V3Zm4.8 2.2-1.4 1.4A7 7 0 1 1 7.6 6.6L6.2 5.2a9 9 0 1 0 11.6 0Z',
+  timer:   'M15 1H9v2h6V1Zm-4 13h2V8h-2v6Zm8.03-6.61 1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0 0 12 4a9 9 0 1 0 7.03 3.39ZM12 20a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z',
+  reverse: 'M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z',
+  sleep:   'M9.5 2A10 10 0 0 0 22 14.5 10 10 0 1 1 9.5 2Z',
+  minus:   'M19 13H5v-2h14v2Z',
+  plus:    'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z',
+  boost:   'M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12l1-8.5Z',
+};
+
+const BUTTONS = [
+  { id:'power',   label:'Power',   icon:'power', cls:'power' },
+  { id:'light',   label:'Light',   icon:'light'   },
+  { id:'timer',   label:'Timer',   icon:'timer'   },
+  { id:'reverse', label:'Reverse', icon:'reverse' },
+  { id:'sleep',   label:'Sleep',   icon:'sleep'   },
+  { id:'minus',   label:'Speed −', icon:'minus'   },
+  { id:'plus',    label:'Speed +', icon:'plus'    },
+  { id:'boost',   label:'Boost',   icon:'boost'   },
+];
+
+const MIN = 1, MAX = 5;
+let speed = 1, busy = false, boostOn = false;
+
+const grid = document.getElementById('grid');
+BUTTONS.forEach(b => {
+  const el = document.createElement('button');
+  el.className = 'tile' + (b.cls ? ' ' + b.cls : '');
+  el.innerHTML =
+    `<svg viewBox="0 0 24 24">${
+      b.icon === 'light'
+        ? `<circle cx="12" cy="12" r="4"/><path d="${ICONS.light}" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>`
+        : `<path d="${ICONS[b.icon]}"/>`
+    }</svg><span>${b.label}</span>`;
+  el.onclick = () => {
+    if (b.id === 'plus')  return nudge(+1);
+    if (b.id === 'minus') return nudge(-1);
+    if (b.id === 'power') return firePower();
+    if (b.id === 'boost') return toggleBoost();
+    el.classList.add('active');
+    setTimeout(() => el.classList.remove('active'), 260);
+  };
+  if (b.id === 'power') el.id = 'powerTile';
+  if (b.id === 'boost') el.id = 'boostTile';
+  grid.appendChild(el);
+});
+
+function firePower() {
+  document.querySelectorAll('#powerTile, .power-node').forEach(el => {
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 260);
+  });
+}
+
+// dial nodes 1..5 across a 270° arc
+const dial = document.getElementById('dial');
+const START = 135, SWEEP = 270;
+for (let i = MIN; i <= MAX; i++) {
+  const frac = (i - MIN) / (MAX - MIN);
+  const a = (START + SWEEP * frac) * Math.PI / 180;
+  const btn = document.createElement('button');
+  btn.className = 'node';
+  btn.textContent = i;
+  btn.dataset.level = i;
+  btn.style.left = (50 + Math.cos(a) * 36) + '%';
+  btn.style.top  = (50 + Math.sin(a) * 36) + '%';
+  dial.appendChild(btn);
+}
+
+const powerNode = document.createElement('button');
+powerNode.className = 'node power-node';
+powerNode.title = 'Power';
+powerNode.innerHTML = `<svg viewBox="0 0 24 24"><path d="${ICONS.power}"/></svg>`;
+powerNode.style.left = '50%';
+powerNode.style.top = (50 + 36) + '%';
+powerNode.onclick = firePower;
+dial.appendChild(powerNode);
+
+let dragging = false, dragLevel = null;
+
+function levelFromPoint(clientX, clientY) {
+  const r = dial.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top + r.height / 2;
+  const dx = clientX - cx, dy = clientY - cy;
+
+  if (Math.hypot(dx, dy) < r.width * 0.21) return null;
+
+  const deg = Math.atan2(dy, dx) * 180 / Math.PI;
+  const off = ((deg - START) % 360 + 360) % 360;
+
+  if (off > SWEEP) {
+    const past = off - SWEEP;
+    return past < (360 - SWEEP) / 2 ? MAX : MIN;
+  }
+
+  return Math.min(MAX, Math.max(MIN, Math.round(MIN + (off / SWEEP) * (MAX - MIN))));
+}
+
+function previewLevel(level) {
+  dragLevel = level;
+  const shown = level ?? (boostOn ? MAX : speed);
+  const frac = (shown - MIN) / (MAX - MIN);
+  prog.setAttribute('stroke-dasharray', `${ARC * frac} ${CIRC}`);
+  document.querySelectorAll('.node[data-level]').forEach(n =>
+    n.classList.toggle('on', +n.dataset.level <= shown));
+}
+
+function startDrag(e) {
+  if (busy) return;
+  if (e.target.closest('.power-node, .boost')) return;
+  const t = e.touches ? e.touches[0] : e;
+  const level = levelFromPoint(t.clientX, t.clientY);
+  if (level === null) return;
+  dragging = true;
+  dial.setAttribute('data-dragging', '1');
+  previewLevel(level);
+  e.preventDefault();
+}
+
+function moveDrag(e) {
+  if (!dragging) return;
+  const t = e.touches ? e.touches[0] : e;
+  const level = levelFromPoint(t.clientX, t.clientY);
+  if (level !== null) previewLevel(level);
+  e.preventDefault();
+}
+
+function endDrag() {
+  if (!dragging) return;
+  dragging = false;
+  dial.removeAttribute('data-dragging');
+  const target = dragLevel;
+  dragLevel = null;
+  if (target !== null) setSpeed(target);
+  else render();
+}
+
+dial.addEventListener('pointerdown', startDrag);
+window.addEventListener('pointermove', moveDrag);
+window.addEventListener('pointerup', endDrag);
+window.addEventListener('pointercancel', endDrag);
+
+const prog = document.getElementById('prog');
+const CIRC = 2 * Math.PI * 72;
+const ARC = CIRC * 0.75;
+
+function render() {
+  if (dragging) return;
+  const level = boostOn ? MAX : speed;
+  const frac = (level - MIN) / (MAX - MIN);
+  prog.setAttribute('stroke-dasharray', `${ARC * frac} ${CIRC}`);
+  document.querySelectorAll('.node[data-level]').forEach(n =>
+    n.classList.toggle('on', +n.dataset.level <= level));
+  document.getElementById('boost').classList.toggle('on', boostOn);
+  document.getElementById('boostTile').classList.toggle('active', boostOn);
+}
+
+function setSpeed(target) {
+  if (busy) return;
+  if (target === speed && !boostOn) { render(); return; }
+  const steps = target - speed;
+  boostOn = false;
+  busy = true;
+  let i = 0;
+  const tick = () => {
+    speed += Math.sign(steps);
+    render();
+    if (++i < Math.abs(steps)) setTimeout(tick, 180);
+    else busy = false;
+  };
+  tick();
+}
+
+function nudge(d) {
+  if (busy) return;
+  if (boostOn) {
+    if (d > 0) return;
+    boostOn = false;
+    speed = MAX;
+    render();
+    return;
+  }
+  speed = Math.min(MAX, Math.max(MIN, speed + d));
+  render();
+}
+
+function toggleBoost() {
+  if (busy) return;
+  boostOn = true;
+  render();
+}
+
+document.getElementById('boost').onclick = toggleBoost;
+
+document.getElementById('resync').onclick = () => {
+  if (busy) return;
+  busy = true;
+  boostOn = false;
+
+  const status = document.getElementById('status');
+  document.getElementById('msg').textContent = 'Resyncing to speed 1\u2026';
+  status.classList.add('showing');
+
+  setTimeout(() => {
+    speed = MIN;
+    render();
+    busy = false;
+    status.classList.remove('showing');
+  }, 1200);
+};
+
+const about = document.getElementById('about');
+document.getElementById('infoBtn').onclick = () => about.showModal();
+
+document.getElementById('themeBtn').onclick = () => {
+  const root = document.documentElement;
+  root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
+};
+
+render();
+</script>
+</body>
+</html>
