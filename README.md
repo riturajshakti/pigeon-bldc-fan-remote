@@ -7,6 +7,8 @@ Built because no profile in Mi Remote worked with this fan, and the only physica
 remote is a single point of failure — the fan powers up in the OFF state, so losing
 the remote means losing the fan.
 
+**[Download the APK](https://pigron-bldc-fan.pages.dev/)**
+
 ![Widget at four sizes](assets/screenshots/widget-sizes.png)
 
 ## The protocol
@@ -82,6 +84,17 @@ APKs land in `outputs/`. Install `*-arm64-v8a.apk` on any modern phone.
 The release build is signed with the debug key — fine for sideloading, not for
 distribution. Add a keystore and a `signingConfig` in
 `android/app/build.gradle.kts` before publishing anywhere.
+
+## Download page
+
+`outputs/index.html` is the download page hosted at
+[pigron-bldc-fan.pages.dev](https://pigron-bldc-fan.pages.dev/). The page is
+tracked in the repo; the APKs beside it are not, since git would keep every
+version of a 15 MB binary forever. Deploy with a direct upload after a build:
+
+```bash
+npx wrangler pages deploy outputs
+```
 
 ## Requirements
 

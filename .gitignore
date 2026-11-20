@@ -45,8 +45,8 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 
-# Build output: APKs are large binaries, not source.
-/outputs/
+# APKs are large binaries, not source. The outputs/ folder itself is tracked
+# so its index.html (the Cloudflare Pages download page) stays in the repo.
 *.apk
 *.aab
 
