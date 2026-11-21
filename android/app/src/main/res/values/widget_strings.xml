@@ -8,4 +8,6 @@
     <string name="widget_boost">Boost</string>
     <string name="widget_light">Light</string>
     <string name="widget_sleep">Sleep</string>
+    <string name="widget_t_label">Pigeon Fan (transparent)</string>
+    <string name="widget_t_description">Fan dial with no background</string>
 </resources>

@@ -14,10 +14,10 @@ flutter build apk --release --split-per-abi \
   --obfuscate --split-debug-info=build/symbols \
   --extra-gen-snapshot-options=--strip
 
-mkdir -p outputs
+mkdir -p outputs/assets/apks
 for abi in arm64-v8a armeabi-v7a x86_64; do
   cp "build/app/outputs/flutter-apk/app-$abi-release.apk" \
-     "outputs/pigeon-fan-remote-$APP_VERSION-$abi.apk"
+     "outputs/assets/apks/pigeon-fan-remote-$APP_VERSION-$abi.apk"
 done
 
-ls -la outputs/*.apk
+ls -la outputs/assets/apks/*.apk

@@ -9,7 +9,12 @@ the remote means losing the fan.
 
 **[Download the APK](https://pigron-bldc-fan.pages.dev/)**
 
-![Widget at four sizes](assets/screenshots/widget-sizes.png)
+| Remote | Widgets |
+|---|---|
+| <img src="https://pigron-bldc-fan.pages.dev/assets/images/dark.jpg" width="220" alt="Remote screen, dark theme"> | <img src="https://pigron-bldc-fan.pages.dev/assets/images/widget-dark.jpg" width="220" alt="Home screen widgets, dark theme"> |
+| <img src="https://pigron-bldc-fan.pages.dev/assets/images/light.jpg" width="220" alt="Remote screen, light theme"> | <img src="https://pigron-bldc-fan.pages.dev/assets/images/widget-light.jpg" width="220" alt="Home screen widgets, light theme"> |
+
+Both widgets shown side by side: solid and fully transparent.
 
 ## The protocol
 
@@ -42,10 +47,8 @@ the same NEC framing with different command bytes — see **Finding your own cod
 - Speed dial with absolute 1–5 selection, which the physical remote cannot do:
   it only has `+` and `−`
 - Drag around the arc to set speed
-- Home screen widget with the same dial, no app launch required
+- Two home screen widgets, solid or fully transparent, with the same dial and no app launch required
 - Light and dark themes
-
-![Widget states](assets/screenshots/widget-states.png)
 
 ## How absolute speed works
 
@@ -87,10 +90,18 @@ distribution. Add a keystore and a `signingConfig` in
 
 ## Download page
 
-`outputs/index.html` is the download page hosted at
-[pigron-bldc-fan.pages.dev](https://pigron-bldc-fan.pages.dev/). The page is
-tracked in the repo; the APKs beside it are not, since git would keep every
-version of a 15 MB binary forever. Deploy with a direct upload after a build:
+`outputs/` is the download site hosted at
+[pigron-bldc-fan.pages.dev](https://pigron-bldc-fan.pages.dev/):
+
+```
+outputs/
+  index.html
+  assets/images/   screenshots (tracked)
+  assets/apks/     built APKs (not tracked)
+```
+
+The page and screenshots are in the repo; the APKs are not, since git would keep
+every version of a 15 MB binary forever. Build first, then deploy:
 
 ```bash
 npx wrangler pages deploy outputs

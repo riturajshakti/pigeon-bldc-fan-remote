@@ -79,6 +79,27 @@
   .alt .who { color: var(--muted); font-size: 13px; }
   .alt .size { margin-left: auto; color: var(--muted); font-size: 13px; }
 
+  .shots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+  }
+  .shots figure { margin: 0; }
+  .shots img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    border: 1px solid var(--outline);
+    background: var(--surface);
+  }
+  .shots figcaption {
+    margin-top: 6px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
   h2 {
     font-size: 15px;
     text-transform: uppercase;
@@ -150,7 +171,7 @@
     <p class="tagline">Control a Pigeon BLDC ceiling fan with your phone&rsquo;s IR blaster</p>
   </header>
 
-  <a class="primary" href="pigeon-fan-remote-1.0.0-arm64-v8a.apk" download>
+  <a class="primary" href="assets/apks/pigeon-fan-remote-1.0.0-arm64-v8a.apk" download>
     <div class="row">
       <strong>Download for Android</strong>
       <span class="size">14.6 MB</span>
@@ -159,16 +180,36 @@
   </a>
 
   <h2>Other builds</h2>
-  <a class="alt" href="pigeon-fan-remote-1.0.0-armeabi-v7a.apk" download>
+  <a class="alt" href="assets/apks/pigeon-fan-remote-1.0.0-armeabi-v7a.apk" download>
     <span class="name">armeabi-v7a</span>
     <span class="who">older 32-bit phones</span>
     <span class="size">11.8 MB</span>
   </a>
-  <a class="alt" href="pigeon-fan-remote-1.0.0-x86_64.apk" download>
+  <a class="alt" href="assets/apks/pigeon-fan-remote-1.0.0-x86_64.apk" download>
     <span class="name">x86_64</span>
     <span class="who">emulators</span>
     <span class="size">15.9 MB</span>
   </a>
+
+  <h2>Screenshots</h2>
+  <div class="shots">
+    <figure>
+      <img src="assets/images/dark.jpg" alt="Remote screen, dark theme" loading="lazy" width="576" height="1280">
+      <figcaption>App &middot; dark</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/images/light.jpg" alt="Remote screen, light theme" loading="lazy" width="576" height="1280">
+      <figcaption>App &middot; light</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/images/widget-dark.jpg" alt="Home screen widgets, dark theme" loading="lazy" width="576" height="1280">
+      <figcaption>Widgets &middot; dark</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/images/widget-light.jpg" alt="Home screen widgets, light theme" loading="lazy" width="576" height="1280">
+      <figcaption>Widgets &middot; light</figcaption>
+    </figure>
+  </div>
 
   <h2>Before you install</h2>
   <div class="card">
@@ -198,7 +239,7 @@
     <ul>
       <li>Power, Light, Timer, Reverse, Sleep, Boost, and speed up/down</li>
       <li>Direct speed selection 1&ndash;5 &mdash; the original remote only has <code>+</code> and <code>&minus;</code></li>
-      <li>A home screen widget with the same dial, no app launch needed</li>
+      <li>Two home screen widgets &mdash; solid or fully transparent &mdash; with the same dial, no app launch needed</li>
       <li>Light and dark themes</li>
     </ul>
   </div>

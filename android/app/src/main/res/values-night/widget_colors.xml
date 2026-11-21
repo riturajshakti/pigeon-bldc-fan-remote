@@ -7,4 +7,9 @@
     <color name="widget_accent">#E02424</color>
     <color name="widget_on_accent">#FFFFFF</color>
     <color name="widget_surface_hi">#42201F</color>
+    <color name="widget_t_stroke">#FFFFFFFF</color>
+    <color name="widget_t_fill">#4D000000</color>
+    <color name="widget_t_track">#4DFFFFFF</color>
+    <color name="widget_t_accent">#FFE02424</color>
+    <color name="widget_t_text_on">#FF1A1A1A</color>
 </resources>
