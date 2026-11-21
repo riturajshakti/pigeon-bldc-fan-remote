@@ -1,25 +1,101 @@
 # Pigeon Fan Remote
 
-An Android app that controls a Pigeon BLDC ceiling fan through the phone's
-built-in IR blaster, plus a home screen widget that works without opening the app.
+Turn your phone into a remote for a Pigeon BLDC ceiling fan.
 
-Built because no profile in Mi Remote worked with this fan, and the only physical
-remote is a single point of failure — the fan powers up in the OFF state, so losing
-the remote means losing the fan.
+### 🌐 [pigeon-fan-remote.pages.dev](https://pigeon-fan-remote.pages.dev/) — download the app
 
-**[Download the APK](https://pigeon-fan-remote.pages.dev/)**
-
-| Remote | Widgets |
+| The app | On your home screen |
 |---|---|
 | <img src="https://pigeon-fan-remote.pages.dev/assets/images/dark.jpg" width="220" alt="Remote screen, dark theme"> | <img src="https://pigeon-fan-remote.pages.dev/assets/images/widget-dark.jpg" width="220" alt="Home screen widgets, dark theme"> |
 | <img src="https://pigeon-fan-remote.pages.dev/assets/images/light.jpg" width="220" alt="Remote screen, light theme"> | <img src="https://pigeon-fan-remote.pages.dev/assets/images/widget-light.jpg" width="220" alt="Home screen widgets, light theme"> |
 
-Both widgets shown side by side: solid and fully transparent.
+## What it does
 
-## The protocol
+- All the buttons from the original remote: Power, Light, Timer, Reverse, Sleep, Boost, and speed up and down
+- **Pick a speed directly from 1 to 5** — the original remote can only step up and down one at a time
+- Slide your finger around the dial to change speed
+- **Two home screen widgets** — one solid, one see-through — so you can control the fan without opening the app
+- Matches your phone's light or dark theme
 
-The codes were found by brute-force sweep, not from any remote database, and every
-one is verified against the real fan.
+## Before you install
+
+**Your phone needs an IR blaster.** This is the small infrared window that real
+remotes use to send signals. Most phones do not have one. If yours does not, the
+app cannot control anything — there is no way around it.
+
+Phones that often have one include many Xiaomi, Redmi, POCO, OnePlus and realme
+models. Check your phone's specifications if you are not sure.
+
+The app was built and tested on a POCO X6.
+
+## Installing
+
+1. Open [pigeon-fan-remote.pages.dev](https://pigeon-fan-remote.pages.dev/) on your phone
+2. Tap the download button
+3. Open the downloaded file
+4. Android will warn you about installing outside the Play Store — allow it when asked
+
+The app only sends infrared signals. It has no internet access, no accounts, and
+nothing leaves your phone.
+
+## Adding a widget
+
+Press and hold an empty spot on your home screen, choose **Widgets**, find
+**Pigeon Fan**, and drag one out. There are two to choose from:
+
+- **Pigeon Fan** — solid background
+- **Pigeon Fan (transparent)** — see-through, so your wallpaper shows behind it
+
+Both work the same way and stay in sync with each other and with the app.
+
+## Will it work with my fan?
+
+Probably only if you have the same fan. The signals in this app were worked out
+by testing against one specific Pigeon BLDC ceiling fan, and a different fan
+almost certainly uses different ones.
+
+If the app installs but your fan ignores it, that is why — it is not broken, it
+just does not speak your fan's language. The repository includes the tool used to
+work out the signals, so a developer could repeat the process for another fan.
+
+## A note on speed
+
+When you tap a speed, the fan may briefly run down to its lowest setting before
+coming back up. That is deliberate. The fan never reports what speed it is
+actually at, so the app returns to a known point and counts up from there. It
+takes a moment, but it always lands on the right speed — even if someone used the
+physical remote in between.
+
+## Questions or problems
+
+Open an [issue](https://github.com/riturajshakti/pigeon-bldc-fan-remote/issues)
+or email riturajshakti@gmail.com.
+
+---
+
+## For developers
+
+<details>
+<summary>Building, the IR protocol, and project layout</summary>
+
+### Build
+
+```bash
+flutter pub get
+./build_release.sh
+```
+
+APKs land in `outputs/assets/apks/`. The release build is signed with the debug
+key — fine for sideloading, not for distribution. Add a keystore and a
+`signingConfig` in `android/app/build.gradle.kts` before publishing anywhere.
+
+Requires Flutter 3.47+ and a device with an IR emitter. The manifest declares
+`android.permission.TRANSMIT_IR`, granted at install time.
+
+### The protocol
+
+Found by sweeping the command space and testing each response against the real
+fan — not taken from any remote database.
 
 | Setting | Value |
 |---|---|
@@ -27,93 +103,32 @@ one is verified against the real fan.
 | Carrier | 38 kHz |
 | Address | 0 |
 
-| Function | Code |
-|---|---|
-| Power | 129 |
-| Sleep | 135 |
-| Reverse | 136 |
-| Light | 140 |
-| Boost | 142 |
-| Speed − | 146 |
-| Speed + | 149 |
-| Timer | 150 |
+| Function | Code | Function | Code |
+|---|---|---|---|
+| Power | 129 | Boost | 142 |
+| Sleep | 135 | Speed − | 146 |
+| Reverse | 136 | Speed + | 149 |
+| Light | 140 | Timer | 150 |
 
-These are specific to this fan's receiver. A different BLDC fan will likely use
-the same NEC framing with different command bytes — see **Finding your own codes**.
+A different BLDC fan will likely use the same NEC framing with different command
+bytes. The discovery screens are in
+[`assets/BldcRemoteLab/`](assets/BldcRemoteLab/README.md) — a 0–255 sweep grid
+and a per-button code editor with selectable NEC variants.
 
-## Features
+### Absolute speed from relative commands
 
-- Eight-button remote matching the original handset
-- Speed dial with absolute 1–5 selection, which the physical remote cannot do:
-  it only has `+` and `−`
-- Drag around the arc to set speed
-- Two home screen widgets, solid or fully transparent, with the same dial and no app launch required
-- Light and dark themes
+The receiver only accepts `+` and `−`. To reach a known level the app sends five
+`−` presses to floor the fan, then counts up. That makes speed selection correct
+regardless of prior state, including after someone used the physical remote. The
+gap between transmissions is 1 ms, tuned on real hardware.
 
-## How absolute speed works
+### Boost
 
-The fan's receiver only accepts relative speed commands. To reach a known level the
-app floors the fan with five `−` presses, then counts up with `+`. That makes speed
-selection absolute and correct regardless of what the fan was doing, including after
-someone used the physical remote.
+Boost is one-way on this fan: pressing it again does not cancel it. Boost clears
+only on a speed command (1–5, `−`, or Resync). Every Boost press still transmits,
+so a missed signal can be retried.
 
-The gap between transmissions is 1 ms, tuned empirically on real hardware — low
-enough that a full selection is effectively instant.
-
-## Boost
-
-Boost is one-way on this fan: pressing it again does not cancel it. The app models
-this, so boost clears only on a speed command (1–5, `−`, or Resync), never by
-pressing Boost. Every Boost press still transmits, so a missed signal can be retried.
-
-## Finding your own codes
-
-If your fan is not a Pigeon, the codes here will not work — but the method will.
-The screens used to discover them are kept in
-[`assets/BldcRemoteLab/`](assets/BldcRemoteLab/README.md): a 0–255 sweep grid that transmits one
-command per button and records what the fan did, plus a per-button code editor with
-selectable NEC variants. They are not part of the shipped app, but they are complete
-and documented.
-
-## Build
-
-```bash
-flutter pub get
-./build_release.sh
-```
-
-APKs land in `outputs/`. Install `*-arm64-v8a.apk` on any modern phone.
-
-The release build is signed with the debug key — fine for sideloading, not for
-distribution. Add a keystore and a `signingConfig` in
-`android/app/build.gradle.kts` before publishing anywhere.
-
-## Download page
-
-`outputs/` is the download site hosted at
-[pigeon-fan-remote.pages.dev](https://pigeon-fan-remote.pages.dev/):
-
-```
-outputs/
-  index.html
-  assets/images/   screenshots (tracked)
-  assets/apks/     built APKs (not tracked)
-```
-
-The page and screenshots are in the repo; the APKs are not, since git would keep
-every version of a 15 MB binary forever. Build first, then deploy:
-
-```bash
-npx wrangler pages deploy outputs
-```
-
-## Requirements
-
-- A phone with an IR blaster (developed on a POCO X6)
-- Flutter 3.47+
-- `android.permission.TRANSMIT_IR`, declared in the manifest and granted at install
-
-## Layout
+### Layout
 
 ```
 lib/
@@ -124,15 +139,28 @@ lib/
   ir_service.dart     MethodChannel to Android
 android/app/src/main/kotlin/.../
   MainActivity.kt      ConsumerIrManager bridge
-  FanIr.kt             NEC encoder for the widget
-  FanWidgetProvider.kt home screen widget
-  FanState.kt          state shared between app and widget
+  FanIr.kt             NEC encoder for the widgets
+  FanWidgetProvider.kt both home screen widgets
+  FanState.kt          state shared between app and widgets
 ```
 
 The NEC encoder exists twice, in Dart and Kotlin, because a home screen widget
 cannot run Flutter. Changing a code means changing both `fan_profile.dart` and
 `FanIr.kt`.
 
-## Author
+### Download site
 
-Rituraj Shakti — riturajshakti@gmail.com
+`outputs/` is the site at
+[pigeon-fan-remote.pages.dev](https://pigeon-fan-remote.pages.dev/). The page and
+screenshots are tracked; the APKs are not, since git would keep every version of
+a 15 MB binary forever. Build first, then deploy:
+
+```bash
+npx wrangler pages deploy outputs
+```
+
+</details>
+
+---
+
+Built by Rituraj Shakti. Not affiliated with Pigeon.
