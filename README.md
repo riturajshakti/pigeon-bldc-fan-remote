@@ -7,12 +7,12 @@ Built because no profile in Mi Remote worked with this fan, and the only physica
 remote is a single point of failure — the fan powers up in the OFF state, so losing
 the remote means losing the fan.
 
-**[Download the APK](https://pigron-bldc-fan.pages.dev/)**
+**[Download the APK](https://pigeon-fan-remote.pages.dev/)**
 
 | Remote | Widgets |
 |---|---|
-| <img src="https://pigron-bldc-fan.pages.dev/assets/images/dark.jpg" width="220" alt="Remote screen, dark theme"> | <img src="https://pigron-bldc-fan.pages.dev/assets/images/widget-dark.jpg" width="220" alt="Home screen widgets, dark theme"> |
-| <img src="https://pigron-bldc-fan.pages.dev/assets/images/light.jpg" width="220" alt="Remote screen, light theme"> | <img src="https://pigron-bldc-fan.pages.dev/assets/images/widget-light.jpg" width="220" alt="Home screen widgets, light theme"> |
+| <img src="https://pigeon-fan-remote.pages.dev/assets/images/dark.jpg" width="220" alt="Remote screen, dark theme"> | <img src="https://pigeon-fan-remote.pages.dev/assets/images/widget-dark.jpg" width="220" alt="Home screen widgets, dark theme"> |
+| <img src="https://pigeon-fan-remote.pages.dev/assets/images/light.jpg" width="220" alt="Remote screen, light theme"> | <img src="https://pigeon-fan-remote.pages.dev/assets/images/widget-light.jpg" width="220" alt="Home screen widgets, light theme"> |
 
 Both widgets shown side by side: solid and fully transparent.
 
@@ -91,7 +91,7 @@ distribution. Add a keystore and a `signingConfig` in
 ## Download page
 
 `outputs/` is the download site hosted at
-[pigron-bldc-fan.pages.dev](https://pigron-bldc-fan.pages.dev/):
+[pigeon-fan-remote.pages.dev](https://pigeon-fan-remote.pages.dev/):
 
 ```
 outputs/
